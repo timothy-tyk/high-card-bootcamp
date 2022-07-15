@@ -3,8 +3,6 @@ import "./App.css";
 import PlayingCard from "./PlayingCard";
 import { makeShuffledDeck } from "./utils.js";
 
-let imageArray = [];
-
 class App extends React.Component {
   constructor(props) {
     // Always call super with props in constructor to initialise parent class
@@ -18,16 +16,12 @@ class App extends React.Component {
       winner: "",
       player1WinCount: 0,
       player2WinCount: 0,
+      roundsPlayed: 0,
+      reset: false,
+      gamesPlayed: 0,
     };
   }
-  importAll = (r) => {
-    return r.keys().map(r);
-  };
-  componentWillMount() {
-    imageArray = this.importAll(
-      require.context("./cards/", false, /\.(png|jpe?g|svg)$/)
-    );
-  }
+
   dealCards = () => {
     this.setState((state) => ({
       // Remove last 2 cards from cardDeck
@@ -38,7 +32,6 @@ class App extends React.Component {
   };
 
   compareCards = () => {
-    console.log(this.state.currCards);
     if (this.state.currCards[0].rank > this.state.currCards[1].rank) {
       this.setState({
         winner: "Player 1",
@@ -66,11 +59,40 @@ class App extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     // Typical usage (don't forget to compare props):
-    if (this.state.currCards !== prevState.currCards) {
+    // console.log("Update");
+    console.log(this.state.reset);
+    console.log(this.state.currCards);
+    console.log(this.state.reset === false && this.state.currCards === []);
+    if (this.state.reset) {
+      this.resetGame();
+    } else if (this.state.reset !== prevState.reset) {
+      this.gamesPlayed();
+      console.log("game has been reset");
+    } else if (this.state.currCards !== prevState.currCards) {
       this.compareCards();
       this.overallWinner();
+      this.setState({ roundsPlayed: this.state.roundsPlayed + 1 });
     }
   }
+  resetStateTrue = () => {
+    this.setState({ reset: true });
+  };
+  resetGame = () => {
+    console.log("reset game function");
+    this.setState({
+      cardDeck: makeShuffledDeck(),
+      currCards: [],
+      winner: "",
+      player1WinCount: 0,
+      player2WinCount: 0,
+      roundsPlayed: 0,
+      reset: false,
+    });
+  };
+
+  gamesPlayed = () => {
+    this.setState({ gamesPlayed: this.state.gamesPlayed + 1 });
+  };
 
   render() {
     const currCardElems = this.state.currCards.map(({ name, suit }) => (
@@ -86,24 +108,24 @@ class App extends React.Component {
           <h3>High Card 🚀</h3>
           <PlayingCard currCard={this.state.currCards} />
           {currCardElems}
-          {/* <div>
-            {imageArray.map((image, index) => (
-              <img key={index} src={image} alt="info"></img>
-            ))}
-          </div> */}
-          {this.state.currCards.length > 0 ? (
-            <div>
-              {/* <img alt="" src={this.state.currCards[0].image} />
-              <img alt="" src={this.state.currCards[1].image} />
-              {console.log(this.state.currCards[0].image)} */}
-            </div>
-          ) : null}
           <br />
-          <button onClick={this.dealCards}>Deal</button>
+          <button
+            onClick={this.dealCards}
+            disabled={this.state.cardDeck.length < 2}
+          >
+            Deal
+          </button>
           <h1>{this.state.winner}</h1>
           <h3>Player 1 Score: {this.state.player1WinCount}</h3>
           <h3>Player 2 Score: {this.state.player2WinCount}</h3>
-          <h2>Overall Winner: {this.overallWinner()}</h2>
+          <h3>Rounds Played: {this.state.roundsPlayed}</h3>
+          <h3>Games Played: {this.state.gamesPlayed}</h3>
+          {this.state.cardDeck.length <= 0 ? (
+            <div>
+              <h2>Overall Winner: {this.overallWinner()}</h2>
+              <button onClick={this.resetStateTrue}>Reset Game</button>
+            </div>
+          ) : null}
         </header>
       </div>
     );

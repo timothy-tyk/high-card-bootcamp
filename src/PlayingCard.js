@@ -19,18 +19,21 @@ export default class PlayingCard extends React.Component {
   }
 
   getCorrectImage = () => {
-    let string1 = this.props.currCard[0].image;
-    console.log(string1);
-    for (let i = 0; i < imageArray.length; i++) {
-      if (imageArray[i].includes(string1)) {
-        this.setState({ cardImage1: imageArray[i] });
+    if (this.props.currCard.length > 0) {
+      let string1 = this.props.currCard[0].image;
+      for (let i = 0; i < imageArray.length; i++) {
+        if (imageArray[i].includes(string1)) {
+          this.setState({ cardImage1: imageArray[i] });
+        }
       }
-    }
-    let string2 = this.props.currCard[1].image;
-    for (let i = 0; i < imageArray.length; i++) {
-      if (imageArray[i].includes(string2)) {
-        this.setState({ cardImage2: imageArray[i] });
+      let string2 = this.props.currCard[1].image;
+      for (let i = 0; i < imageArray.length; i++) {
+        if (imageArray[i].includes(string2)) {
+          this.setState({ cardImage2: imageArray[i] });
+        }
       }
+    } else {
+      this.setState({ cardImage1: null, cardImage2: null });
     }
   };
 
